@@ -21,6 +21,10 @@ def home():
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    arquivos_gerados = []
+    caminho_arquivo = ""
+    zip_path = ""
+
     try:
         file = request.files['arquivo']
         linhas_por_arquivo = int(request.form['linhas'])
@@ -31,7 +35,6 @@ def upload():
         total_linhas = len(df)
         num_arquivos = math.ceil(total_linhas / linhas_por_arquivo)
 
-        arquivos_gerados = []
         for i in range(num_arquivos):
             parte = df.iloc[i * linhas_por_arquivo : (i + 1) * linhas_por_arquivo]
             nome_arquivo = f"parte_{i+1}.xls"
@@ -61,5 +64,11 @@ def upload():
         print("❌ Erro interno:", e)
         return f"Erro interno: {str(e)}", 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    finally:
+        for caminho in arquivos_gerados:
+            if os.path.exists(caminho):
+                os.remove(caminho)
+        if caminho_arquivo and os.path.exists(caminho_arquivo):
+            os.remove(caminho_arquivo)
+        if zip_path and os.path.exists(zip_path):
+            os.remove(zip_path)
