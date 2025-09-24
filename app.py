@@ -1,24 +1,4 @@
-from flask import jsonify
-# Simulação de endpoint LerDados para testes
-@app.route('/LerDados', methods=['POST'])
-def ler_dados():
-    logger.info('Rota /LerDados acessada')
-    # Simula autenticação básica
-    auth = request.authorization
-    if not auth or auth.username != 'usuario' or auth.password != 'senha':
-        return jsonify({'erro': 'Não autorizado'}), 401
-    data = request.get_json()
-    comando = data.get('comando', '')
-    # Simula resposta para comando SELECT
-    if comando.strip().lower().startswith('select'):
-        resultado = {
-            'empresas': [
-                {'id': 1, 'nome': 'Empresa A'},
-                {'id': 2, 'nome': 'Empresa B'}
-            ]
-        }
-        return jsonify(resultado)
-    return jsonify({'erro': 'Comando não permitido'}), 400
+
 
 
 from flask import Flask, request, send_file, render_template
@@ -38,6 +18,28 @@ CORS(app)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info('Flask app inicializado.')
+
+# Simulação de endpoint LerDados para testes
+from flask import jsonify
+@app.route('/LerDados', methods=['POST'])
+def ler_dados():
+    logger.info('Rota /LerDados acessada')
+    # Simula autenticação básica
+    auth = request.authorization
+    if not auth or auth.username != 'usuario' or auth.password != 'senha':
+        return jsonify({'erro': 'Não autorizado'}), 401
+    data = request.get_json()
+    comando = data.get('comando', '')
+    # Simula resposta para comando SELECT
+    if comando.strip().lower().startswith('select'):
+        resultado = {
+            'empresas': [
+                {'id': 1, 'nome': 'Empresa A'},
+                {'id': 2, 'nome': 'Empresa B'}
+            ]
+        }
+        return jsonify(resultado)
+    return jsonify({'erro': 'Comando não permitido'}), 400
 @app.route('/divisor-planilhas')
 def divisor_planilhas():
     logger.info('Rota /divisor-planilhas acessada')
