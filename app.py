@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify
 # Simulação de endpoint LerDados para testes
 @app.route('/LerDados', methods=['POST'])
 def ler_dados():
@@ -19,6 +19,7 @@ def ler_dados():
         }
         return jsonify(resultado)
     return jsonify({'erro': 'Comando não permitido'}), 400
+
 
 from flask import Flask, request, send_file, render_template
 from flask_cors import CORS
