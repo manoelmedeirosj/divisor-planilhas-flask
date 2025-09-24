@@ -26,15 +26,19 @@ import requests
 @app.route('/proxy-lerdados', methods=['POST'])
 def proxy_ler_dados():
     try:
-        # Encaminha o corpo da requisição para o endpoint externo
-        resp = requests.post(
-            'http://189.35.188.84:5556/LerDados',
-            json=request.get_json(),
-            headers={
-                'Content-Type': 'application/json'
-            },
-            timeout=10
-        )
+        dados = request.get_json()
+        ip = dados.get('ip')
+        port = dados.get('port')
+        user = dados.get('user')
+        password = dados.get('pass')
+        comando = dados.get('comando')
+        url = f"http://{ip}:{port}/LerDados"
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Basic {requests.auth._basic_auth_str(user, password).split(" ")[1]}'
+        }
+        payload = {'comando': comando}
+        resp = requests.post(url, json=payload, headers=headers, timeout=10)
         return (resp.content, resp.status_code, resp.headers.items())
     except Exception as e:
         logger.error(f"Erro no proxy: {e}")
