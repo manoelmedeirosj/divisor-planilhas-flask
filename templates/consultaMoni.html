@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta LerDados</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    label { font-weight: bold; }
+    input { width: 100%; margin-bottom: 10px; padding: 8px; }
+    button { padding: 10px 20px; }
+    .error { color: red; }
+    .success { color: green; }
+    .history { background: #f4f4f4; padding: 10px; margin-top: 20px; }
+    pre { background: #eee; padding: 10px; white-space: pre-wrap; word-wrap: break-word; }
+  </style>
+</head>
+<body>
+  <h2>Executar consulta fixa via LerDados</h2>
+  <form id="apiForm">
+    <label>Endereço (IP ou domínio):</label>
+    <input type="text" id="ipInput" placeholder="Ex: 172.00.00.000 ou ddns.empresa.com.br" required />
+
+    <label>Porta:</label>
+    <input type="text" id="portInput" placeholder="Ex: 8888" required />
+
+    <label>Usuário:</label>
+    <input type="text" id="userInput" value="usuario" required />
+
+    <label>Senha:</label>
+    <input type="password" id="passInput" value="senha" required />
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <div id="message" class="error"></div>
+  <h3>Resposta da API:</h3>
+  <pre id="responseOutput"></pre>
+
+  <div class="history">
+    <h3>Histórico de Requisições:</h3>
+    <ul id="historyList"></ul>
+  </div>
+
+  <script>
+    // 🔒 Bloqueio de botão direito e teclas de desenvolvedor
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
+        (e.ctrlKey && e.key === 'U')
+      ) {
+        e.preventDefault();
+      }
+    });
+
+    const hostRegex = /^([a-zA-Z0-9.-]+)$/;
+    const portRegex = /^\d{1,5}$/;
+    const historyList = document.getElementById('historyList');
+
+    document.getElementById('apiForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('message').textContent = '';
+      document.getElementById('responseOutput').textContent = '';
+
+      const ip = document.getElementById('ipInput').value.trim();
+      const port = document.getElementById('portInput').value.trim();
+      const user = document.getElementById('userInput').value.trim();
+      const pass = document.getElementById('passInput').value.trim();
+
+      if (!hostRegex.test(ip)) {
+        document.getElementById('message').textContent = 'Endereço inválido.';
+        return;
+      }
+
+      if (!portRegex.test(port) || parseInt(port) > 65535) {
+        document.getElementById('message').textContent = 'Porta inválida.';
+        return;
+      }
+
+      const comando = "SELECT * from empresas";
+      if (!/^SELECT\s+/i.test(comando)) {
+        document.getElementById('message').textContent = 'Comando SQL não permitido.';
+        return;
+      }
+
+      const url = `http://${ip}:${port}/LerDados`;
+      const auth = btoa(`${user}:${pass}`);
+      const payload = JSON.stringify({ comando });
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': `Basic ${auth}`
+        },
+        body: payload
+      })
+      .then(response => {
+        if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        return response.text();
+      })
+      .then(data => {
+        try {
+          const formatted = JSON.stringify(JSON.parse(data), null, 2);
+          document.getElementById('responseOutput').textContent = formatted;
+        } catch {
+          document.getElementById('responseOutput').textContent = data;
+        }
+
+        document.getElementById('message').textContent = 'Requisição enviada com sucesso!';
+        document.getElementById('message').className = 'success';
+
+        const item = document.createElement('li');
+        item.textContent = `Consulta enviada para ${ip}:${port} em ${new Date().toLocaleString()}`;
+        historyList.prepend(item);
+      })
+      .catch(error => {
+        document.getElementById('message').textContent = 'Erro: ' + error.message;
+        document.getElementById('message').className = 'error';
+      });
+    });
+  </script>
+</body>
+</html>

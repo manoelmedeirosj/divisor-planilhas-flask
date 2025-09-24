@@ -19,6 +19,13 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 def home():
     return render_template('index.html')
 
+@app.route('/calculo-avancado')
+def calculo_avancado():
+    return render_template('CalculoAvancadoExplicado.html')
+
+@app.route('/consulta-moni')
+def consulta_moni():
+    return render_template('consultaMoni.html')
 @app.route('/upload', methods=['POST'])
 def upload():
     arquivos_gerados = []
@@ -72,3 +79,6 @@ def upload():
             os.remove(caminho_arquivo)
         if zip_path and os.path.exists(zip_path):
             os.remove(zip_path)
+    
+    if __name__ == '__main__':
+        app.run(debug=True)

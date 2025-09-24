@@ -2,176 +2,74 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Divisor de Planilhas XLS</title>
+  <title>Ferramentas Online</title>
   <style>
-    :root {
-      --bg-light: #ffffff;
-      --text-light: #000000;
-      --bg-dark: #121212;
-      --text-dark: #f0f0f0;
-      --accent: #4caf50;
-      --accent-hover: #45a049;
-    }
-
     body {
       font-family: Arial, sans-serif;
-      padding: 30px;
-      max-width: 600px;
-      margin: auto;
-      background-color: var(--bg-light);
-      color: var(--text-light);
-      transition: background-color 0.3s, color 0.3s;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
     }
-
-    body.dark {
-      background-color: var(--bg-dark);
-      color: var(--text-dark);
-    }
-
-    h1 {
+    .navbar {
+      background: #4caf50;
+      color: #fff;
+      padding: 20px 0 10px 0;
       text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-
-    form {
+    .navbar h1 {
+      margin: 0 0 10px 0;
+      font-size: 2rem;
+    }
+    .menu {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
       margin-bottom: 20px;
     }
-
-    .progress-container {
-      width: 100%;
-      background-color: #eee;
-      border-radius: 5px;
-      overflow: hidden;
-      margin-top: 10px;
-      height: 25px;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: var(--accent);
-      text-align: center;
-      color: white;
-      line-height: 25px;
-      transition: width 0.3s ease;
-    }
-
-    #status {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    a.download-link {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 15px;
-      background-color: var(--accent);
-      color: white;
+    .menu a {
+      color: #fff;
+      background: #388e3c;
+      padding: 10px 24px;
+      border-radius: 6px;
       text-decoration: none;
-      border-radius: 5px;
+      font-weight: bold;
+      transition: background 0.2s;
     }
-
-    a.download-link:hover {
-      background-color: var(--accent-hover);
+    .menu a:hover {
+      background: #2e7031;
     }
-
-    .theme-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background-color: var(--accent);
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 5px;
-      cursor: pointer;
+    .content {
+      max-width: 700px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      padding: 32px;
     }
-
-    .theme-toggle:hover {
-      background-color: var(--accent-hover);
+    @media (max-width: 600px) {
+      .menu {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .content {
+        padding: 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()">🌗 Tema</button>
-
-  <h1>Dividir Planilha XLS</h1>
-
-  <form id="uploadForm">
-    <label>Arquivo XLS:</label><br>
-    <input type="file" name="arquivo" required /><br><br>
-
-    <label>Linhas por arquivo:</label><br>
-    <input type="number" name="linhas" value="1000" min="1" required /><br><br>
-
-    <button type="submit">Enviar</button>
-  </form>
-
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar">0%</div>
+  <nav class="navbar">
+    <h1>Ferramentas Online</h1>
+    <div class="menu">
+      <a href="/">Divisor de Planilhas</a>
+      <a href="/calculo-avancado">Cálculo Avançado Explicado</a>
+      <a href="/consulta-moni">Consulta Moni</a>
+    </div>
+  </nav>
+  <div class="content">
+    <h2>Bem-vindo!</h2>
+    <p>Escolha uma das ferramentas acima para começar.</p>
   </div>
-
-  <div id="status"></div>
-
-  <script>
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
-    }
-
-    window.onload = function () {
-      if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark");
-      }
-    };
-
-    document.getElementById("uploadForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const form = e.target;
-      const formData = new FormData(form);
-      const xhr = new XMLHttpRequest();
-
-      xhr.open("POST", "/upload", true);
-      xhr.responseType = "blob";
-
-      xhr.upload.onprogress = function (event) {
-        if (event.lengthComputable) {
-          const percent = Math.round((event.loaded / event.total) * 100);
-          const progressBar = document.getElementById("progressBar");
-          progressBar.style.width = percent + "%";
-          progressBar.textContent = percent + "%";
-        }
-      };
-
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          const blob = xhr.response;
-          const url = window.URL.createObjectURL(blob);
-
-          const statusDiv = document.getElementById("status");
-          statusDiv.innerHTML = "";
-
-          const successMsg = document.createElement("div");
-          successMsg.textContent = "✅ Arquivo processado com sucesso!";
-          statusDiv.appendChild(successMsg);
-
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "planilhas_divididas.zip";
-          link.textContent = "📥 Clique aqui para baixar o ZIP";
-          link.className = "download-link";
-          statusDiv.appendChild(link);
-        } else {
-          document.getElementById("status").textContent = "❌ Erro ao enviar o arquivo.";
-        }
-      };
-
-      xhr.onerror = function () {
-        document.getElementById("status").textContent = "❌ Falha na conexão com o servidor.";
-      };
-
-      xhr.send(formData);
-    });
-  </script>
 </body>
 </html>
