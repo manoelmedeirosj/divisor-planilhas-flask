@@ -1,6 +1,7 @@
 
 
 
+
 from flask import Flask, request, send_file, render_template
 from flask_cors import CORS
 import pandas as pd
@@ -18,6 +19,26 @@ CORS(app)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info('Flask app inicializado.')
+
+# Adiciona endpoint proxy para contornar Mixed Content
+import requests
+
+@app.route('/proxy-lerdados', methods=['POST'])
+def proxy_ler_dados():
+    try:
+        # Encaminha o corpo da requisição para o endpoint externo
+        resp = requests.post(
+            'http://189.35.188.84:5556/LerDados',
+            json=request.get_json(),
+            headers={
+                'Content-Type': 'application/json'
+            },
+            timeout=10
+        )
+        return (resp.content, resp.status_code, resp.headers.items())
+    except Exception as e:
+        logger.error(f"Erro no proxy: {e}")
+        return jsonify({'erro': 'Falha ao conectar ao serviço externo', 'detalhe': str(e)}), 500
 
 # Simulação de endpoint LerDados para testes
 from flask import jsonify

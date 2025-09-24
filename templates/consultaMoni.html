@@ -85,15 +85,19 @@
         return;
       }
 
-      const url = `http://${ip}:${port}/LerDados`;
-      const auth = btoa(`${user}:${pass}`);
-      const payload = JSON.stringify({ comando });
+      const url = '/proxy-lerdados';
+      const payload = JSON.stringify({
+        ip,
+        port,
+        user,
+        pass,
+        comando
+      });
 
       fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Authorization': `Basic ${auth}`
+          'Content-Type': 'application/json;charset=UTF-8'
         },
         body: payload
       })
